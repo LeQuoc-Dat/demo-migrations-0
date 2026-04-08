@@ -7,20 +7,21 @@ module.exports = {
    * @returns {Promise<void>}
    */
   async up(db, client) {
-    for (const user of data ) {
-      await db.collection('users').updateOne(
-        { id: user.id},
-        {
-          $set: {
-            fullName: user.fullName,
-            gender: user.gender,
-            birthday: user.birthday
-          }
-        },
-        {
-          upsert: true
-        }
-      )
+    try {
+      const userCollection = db.collection('users')
+      if (!userCollection) {
+        console.log("USERS COLLECTION NOT FOUND")
+        return
+      }
+      if (!data || data.length <= 0) {
+        console.log("DATA IS EMPTIED")
+        return
+      }
+      await userCollection.insertMany(data)
+      console.log("INSERT SUCCESS")
+        
+    } catch (error) {
+      console.log("ERROR: ", error)
     }
   },
 
@@ -30,7 +31,27 @@ module.exports = {
    * @returns {Promise<void>}
    */
   async down(db, client) {
-    const ids = data.map(user => user.id)
-    await db.collection('users').deleteMany({id: {$in: ids}})
-  }
+    try {
+      const userCollection = await db.collection('users')
+      if (!userCollection) {
+        console.log("USERS COLLECTION NOT FOUND")
+        return
+      }
+
+      const usersList = await userCollection.find().toArray()
+      if (usersList.length === 0) {
+        console.log("USERS COLLECTION IS EMPTIED")
+        return
+      }
+
+      const ids = usersList.map(user => user._id)
+      await userCollection.deleteMany({_id: {$in: ids}})
+      console.log("USERS COLLECTION HAS BEEN CLEANED")
+
+    } catch(error) {
+        console.log("ERROR: ", error)
+    }
+  
+  },
+
 };
