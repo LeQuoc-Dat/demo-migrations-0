@@ -38,15 +38,17 @@ module.exports = {
         return
       }
 
-      const usersList = await userCollection.find().toArray()
-      if (usersList.length === 0) {
-        console.log("USERS COLLECTION IS EMPTIED")
-        return
+      const ids = data.map(user => user.id)
+      if (ids.length>0)
+      {
+        await userCollection.deleteMany({id: {$in: ids}})
+        console.log("DATA USERS COLLECTION HAS BEEN DELETED")
       }
-
-      const ids = usersList.map(user => user._id)
-      await userCollection.deleteMany({_id: {$in: ids}})
-      console.log("USERS COLLECTION HAS BEEN CLEANED")
+      else
+      {
+        console.log("DATA IS EMPTIED")
+        console.log("NOTHING TO DELETE")
+      }
 
     } catch(error) {
         console.log("ERROR: ", error)
