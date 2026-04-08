@@ -16,6 +16,9 @@ module.exports = {
             gender: user.gender,
             birthday: user.birthday
           }
+        },
+        {
+          upsert: true
         }
       )
     }
