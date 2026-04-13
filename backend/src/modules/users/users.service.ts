@@ -12,8 +12,11 @@ export class UsersService {
         private userModel: Model<User>,
     ){}
 
-    getUsers(limit: number, skip: number):Promise<User[]> {
-        return this.userModel.find().skip(skip).limit(limit).exec()
+    getUsers(limit: number, skip: number) {
+        return this.userModel.aggregate([
+           {$skip: skip},
+           {$limit: limit}
+        ])
     }
 
     getUsersById(id: string) {
